@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Message to Google Sheet</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            width: 80%;
+            max-width: 600px;
+        }
+        textarea {
+            width: 100%;
+            height: 300px;
+            margin-bottom: 15px;
+            padding: 10px;
+            resize: vertical;
+        }
+        #submitBtn {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #submitBtn:hover {
+            background-color: #45a049;
+        }
+        #messageStatus {
+            text-align: center;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <form id="messageForm">
+            <h2>Send Message to Google Sheet</h2>
+            <textarea id="messageInput" name="messageInput" placeholder="Enter your long message here..."></textarea>
+            <button type="submit" id="submitBtn">Send Message</button>
+        </form>
+        <div id="messageStatus"></div>
+    </div>
+
+    <script>
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbxKoQbBhpjYSibOZ148No5wqrItB0W_e3NZV9aBc66BP7UvU1ix4NGObQXXWcMVY1b6/exec';
+        const form = document.getElementById('messageForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const messageInput = document.getElementById('messageInput');
+        const messageStatus = document.getElementById('messageStatus');
+
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+            
+            if (messageInput.value.trim() === '') {
+                messageStatus.textContent = 'Please enter a message';
+                messageStatus.style.color = 'red';
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Sending...';
+            messageStatus.textContent = '';
+
+            fetch(scriptURL, {
+                method: 'POST',
+                body: new FormData(form),
+                mode: 'no-cors'
+            })
+            .then(() => {
+                messageStatus.textContent = 'Message sent successfully!';
+                messageStatus.style.color = 'green';
+                messageInput.value = '';
+            })
+            .catch(error => {
+                console.error('Error!', error.message);
+                messageStatus.textContent = 'Error sending message. Please try again.';
+                messageStatus.style.color = 'red';
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Send Message';
+            });
+        });
+    </script>
+</body>
+</html>
